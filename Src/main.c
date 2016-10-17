@@ -39,7 +39,10 @@
 
 /* USER CODE BEGIN Includes */
 
+#include <string.h>
+#include <math.h>
 #include "modem/mLoRaWAN.h"
+#include "SHT2x/SHT2x.h"
 #include "vcom.h"
 
 /* USER CODE END Includes */
@@ -133,12 +136,9 @@ int main(void)
 
   vcom_Init(huart3);
 
-//  uint16_t sT;
-//  float   temperatureC;           //variable for temperature[°C] as float
-//  uint8_t  error = 0;              //variable for error code. For codes see system.h
-//
-//  error |= SHT2x_MeasureHM(TEMP, &sT);
-//  temperatureC = SHT2x_CalcTemperatureC(sT);
+  uint16_t sT;
+  float   temperatureC;           //variable for temperature[°C] as float
+  uint8_t  error = 0;              //variable for error code. For codes see system.h
 
   mUtil_InitUart();
   HAL_UART_Receive_IT(&huart3, Rx_data_3, 1);
@@ -146,12 +146,17 @@ int main(void)
   ON();
   resetHardware();
 
+  uint8_t ret_join = 0, ret = 0;
 
-  uint8_t ret = 0;
+//  ret = 0;
+//  ret = getDeviceEUI();
+//  printAnswer(ret);
 
-  ret = 0;
-  ret = getDeviceEUI();
-  printAnswer(ret);
+  ret_join = 0;
+  ret_join = joinOTAA();
+  printAnswer(ret_join);
+
+
 
   /* USER CODE END 2 */
 
@@ -159,15 +164,35 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  sprintf(Buffer,"Hello\r\n");
-//	  int len=strlen(Buffer);
-//	  HAL_UART_Transmit(&huart3, (uint8_t*) Buffer, len, 1000);
-	  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-//	  HAL_GPIO_TogglePin(RFPOWER_GPIO_Port, RFPOWER_Pin);
+
+	if(ret_join == LORAWAN_ANSWER_OK)
+	{
+		char word[20];
+		error |= SHT2x_MeasureHM(TEMP, &sT);
+		temperatureC = SHT2x_CalcTemperatureC(sT);
+		int d1 = temperatureC;
+		float f2 = temperatureC - d1;
+		int d2 = trunc(f2 * 10000);
+		sprintf(word,"%d.%04d", d1, d2);
+		int i = 0;
+		for(i = 0; i<strlen(word); i++){
+		sprintf(Buffer+i*2, "%02X", word[i]);
+		}
+		PRINTF("%s\n", Buffer);
+
+		ret = 0;
+		ret = sendConfirmed(2, Buffer);
+		printAnswer(ret);
+	}
+
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  HAL_Delay(1000); //delay 100ms
+	HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+	HAL_Delay(200); //delay 100ms
+	HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+	HAL_Delay(60000); //delay 100ms
   }
   /* USER CODE END 3 */
 
@@ -254,7 +279,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //
 //		HAL_UART_Receive_IT(&huart1, Rx_data_1, 1);	//activate UART receive interrupt every time
 //	}
-	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+//	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 
 	if (huart->Instance == USART3)	//current UART
 	{

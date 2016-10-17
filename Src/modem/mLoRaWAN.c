@@ -274,7 +274,7 @@ uint8_t ON()
 {
 	// P-MOS power gateing, 0 -> ON
     HAL_GPIO_WritePin(RFPOWER_GPIO_Port, RFPOWER_Pin, GPIO_PIN_RESET);
-    HAL_Delay(200);
+//    HAL_Delay(200);
     return LORAWAN_ANSWER_OK;
 }
 
