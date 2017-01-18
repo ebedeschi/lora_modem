@@ -548,7 +548,7 @@ uint8_t getSupplyPower()
 
 /*!
  * @brief   Checks if module is ready to use and saves which kind of
- *              module has been plugged to Arduino, either RN2483 or RN2903
+ *              module has been plugged, either RN2483 or RN2903
  * @return
  *  @arg    '0' if OK
  *  @arg    '1' if error
