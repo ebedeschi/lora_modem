@@ -152,14 +152,15 @@ int main(void)
   mUtil_InitUart();
   HAL_UART_Receive_IT(&huart3, Rx_data_3, 1);
 
-  ON();
-  resetHardware();
-  check();
-  setRetries(0);
+//  ON();
+//  resetHardware();
+//  check();
+//  setRetries(0);
 
   uint8_t join = 1, ret = 0;
   uint8_t count_err = 0;
   uint8_t dr = 0;
+  uint32_t del = 10000;
 
   /* USER CODE END 2 */
 
@@ -167,58 +168,58 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  PRINTF("J: %s, count %d\n", (join==0)?"SI":"NO", count_err);
-
-	  if(join != LORAWAN_ANSWER_OK)
-	  {
-		  join = joinOTAA();
-		  printAnswer(join);
-	  }
-	  if(join == LORAWAN_ANSWER_OK)
-	  {
-		  char word[20];
-		  error |= SHT2x_MeasureHM(TEMP, &sT);
-		  temperatureC = SHT2x_CalcTemperatureC(sT);
-		  int d1 = temperatureC;
-		  float f2 = temperatureC - d1;
-		  int d2 = trunc(f2 * 10000);
-		  sprintf(word,"%d.%04d", d1, d2);
-		  int i = 0;
-		  for(i = 0; i<strlen(word); i++){
-			  sprintf(Buffer+i*2, "%02X", word[i]);
-		  }
-		  PRINTF("%s\n", Buffer);
-
-		  dr = 5;
-		  dr = (d2 % 3) + 3;
-		  ret = 1;
-		  ret = setDataRate(dr);
-		  printAnswer(ret);
-
-		  ret = LORAWAN_SENDING_ERROR;
-		  ret = sendConfirmed(2, Buffer);
-		  printAnswer(ret);
-
-		  if(ret == LORAWAN_NOT_JOINED)
-			  join = 1;
-
-		  if(ret == LORAWAN_ANSWER_OK)
-		  {
-			  count_err = 0;
-		  }
-		  else
-			  count_err++;
-	  }
-	  if(count_err>5)
-	  {
-		  resetHardware();
-		  check();
-		  setRetries(0);
-		  count_err = 0;
-		  del(10000);
-	  }
-	  else
-		  del(60000);
+//	  PRINTF("J: %s, count %d\n", (join==0)?"SI":"NO", count_err);
+//
+//	  if(join != LORAWAN_ANSWER_OK)
+//	  {
+//		  join = joinOTAA();
+//		  printAnswer(join);
+//	  }
+//	  if(join == LORAWAN_ANSWER_OK)
+//	  {
+//		  char word[20];
+//		  error |= SHT2x_MeasureHM(TEMP, &sT);
+//		  temperatureC = SHT2x_CalcTemperatureC(sT);
+//		  int d1 = temperatureC;
+//		  float f2 = temperatureC - d1;
+//		  int d2 = trunc(f2 * 10000);
+//		  sprintf(word,"%d.%04d", d1, d2);
+//		  int i = 0;
+//		  for(i = 0; i<strlen(word); i++){
+//			  sprintf(Buffer+i*2, "%02X", word[i]);
+//		  }
+//		  PRINTF("%s\n", Buffer);
+//
+//		  dr = 5;
+//		  dr = (d2 % 3) + 3;
+//		  ret = 1;
+//		  ret = setDataRate(dr);
+//		  printAnswer(ret);
+//
+//		  ret = LORAWAN_SENDING_ERROR;
+//		  ret = sendConfirmed(2, Buffer);
+//		  printAnswer(ret);
+//
+//		  if(ret == LORAWAN_NOT_JOINED)
+//			  join = 1;
+//
+//		  if(ret == LORAWAN_ANSWER_OK)
+//		  {
+//			  count_err = 0;
+//		  }
+//		  else
+//			  count_err++;
+//	  }
+//	  if(count_err>5)
+//	  {
+//		  resetHardware();
+//		  check();
+//		  setRetries(0);
+//		  count_err = 0;
+//		  del(10000);
+//	  }
+//	  else
+//		  del(60000);
 
 
 //	if(ret_join == LORAWAN_ANSWER_OK)
@@ -267,11 +268,48 @@ int main(void)
 //		printAnswer(ret);
 //	}
 
+	  //----------- cineca ok -----------
+		ON();
+		resetHardware();
+		check();
+		setRetries(0);
+		setDataRate(5);
+
+		if (join != LORAWAN_ANSWER_OK) {
+			join = joinOTAA();
+			printAnswer(join);
+		}
+		if (join == LORAWAN_ANSWER_OK) {
+			char word[20];
+			error |= SHT2x_MeasureHM(TEMP, &sT);
+			temperatureC = SHT2x_CalcTemperatureC(sT);
+			int d1 = temperatureC;
+			float f2 = temperatureC - d1;
+			int d2 = trunc(f2 * 10000);
+			sprintf(word, "%d.%04d", d1, d2);
+			int i = 0;
+			for (i = 0; i < strlen(word); i++) {
+				sprintf(Buffer + i * 2, "%02X", word[i]);
+			}
+			PRINTF("%s\n", Buffer);
+
+			ret = LORAWAN_SENDING_ERROR;
+			ret = sendConfirmed(1, Buffer);
+			printAnswer(ret);
+		}
+		if(ret != LORAWAN_ANSWER_OK)
+			del = 20000;
+		else
+			del = 10000;
+		join = LORAWAN_NOT_JOINED;
+		OFF();
+	  //----------- end cineca ok -----------
 
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+		HAL_Delay(del);
   }
   /* USER CODE END 3 */
 

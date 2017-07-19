@@ -1776,50 +1776,50 @@ uint8_t sendConfirmed(uint8_t port, char* payload)
                 memset(_data,0x00,sizeof(_data));
                 strncpy(_data, pch, sizeof(_data)-1);
 
-                saveConfig();
+                //saveConfig();
                 _dataReceived = true;
                 return LORAWAN_ANSWER_OK;
             }
             else
             {
-                saveConfig();
+                //saveConfig();
                 return LORAWAN_ANSWER_OK;
             }
         }
         else if (status == 2)
         {
-            saveConfig();
+            //saveConfig();
             return LORAWAN_ANSWER_OK;
         }
         else if (status == 3)
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_SENDING_ERROR;
         }
         else if (status == 4)
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_LENGTH_ERROR;
         }
         else
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_NO_ANSWER;
         }
     }
     else if (status == 2)
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_ANSWER_ERROR;
     }
     else if (status == 3)
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_NOT_JOINED;
     }
     else
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_NO_ANSWER;
     }
 }
@@ -1923,50 +1923,50 @@ uint8_t sendUnconfirmed(uint8_t port, char* payload)
                 memset(_data,0x00,sizeof(_data));
                 strncpy(_data, pch, sizeof(_data)-1);
 
-                saveConfig();
+                //saveConfig();
                 _dataReceived = true;
                 return LORAWAN_ANSWER_OK;
             }
             else
             {
-                saveConfig();
+            	//saveConfig();
                 return LORAWAN_ANSWER_OK;
             }
         }
         else if (status == 2)
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_ANSWER_OK;
         }
         else if (status == 3)
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_SENDING_ERROR;
         }
         else if (status == 4)
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_LENGTH_ERROR;
         }
         else
         {
-            saveConfig();
+        	//saveConfig();
             return LORAWAN_NO_ANSWER;
         }
     }
     else if (status == 2)
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_ANSWER_ERROR;
     }
     else if (status == 3)
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_NOT_JOINED;
     }
     else
     {
-        saveConfig();
+    	//saveConfig();
         return LORAWAN_NO_ANSWER;
     }
 }
@@ -3022,7 +3022,7 @@ uint8_t setUpCounter(uint32_t counter)
     if (status == 1)
     {
         _upCounter = counter;
-        saveConfig();
+        //saveConfig();
         return LORAWAN_ANSWER_OK;
     }
     else if(status == 2)
@@ -3111,7 +3111,7 @@ uint8_t setDownCounter(uint32_t counter)
     if (status == 1)
     {
         _downCounter = counter;
-        saveConfig();
+        //saveConfig();
         return LORAWAN_ANSWER_OK;
     }
     else if (status == 2)
