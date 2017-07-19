@@ -124,6 +124,11 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+	uint8_t join = 1, ret = 0;
+	uint8_t count_err = 0;
+	uint8_t dr = 0;
+	uint32_t del = 10000;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -152,15 +157,11 @@ int main(void)
   mUtil_InitUart();
   HAL_UART_Receive_IT(&huart3, Rx_data_3, 1);
 
-//  ON();
-//  resetHardware();
-//  check();
-//  setRetries(0);
-
-  uint8_t join = 1, ret = 0;
-  uint8_t count_err = 0;
-  uint8_t dr = 0;
-  uint32_t del = 10000;
+  ON();
+  resetHardware();
+  check();
+  setRetries(0);
+  setDataRate(5);
 
   /* USER CODE END 2 */
 
@@ -168,15 +169,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  PRINTF("J: %s, count %d\n", (join==0)?"SI":"NO", count_err);
-//
-//	  if(join != LORAWAN_ANSWER_OK)
-//	  {
-//		  join = joinOTAA();
-//		  printAnswer(join);
-//	  }
-//	  if(join == LORAWAN_ANSWER_OK)
-//	  {
+	  PRINTF("J: %s, count %d\n", (join==0)?"SI":"NO", count_err);
+
+	  if(join != LORAWAN_ANSWER_OK)
+	  {
+		  join = joinOTAA();
+		  printAnswer(join);
+	  }
+	  if(join == LORAWAN_ANSWER_OK)
+	  {
 //		  char word[20];
 //		  error |= SHT2x_MeasureHM(TEMP, &sT);
 //		  temperatureC = SHT2x_CalcTemperatureC(sT);
@@ -189,27 +190,44 @@ int main(void)
 //			  sprintf(Buffer+i*2, "%02X", word[i]);
 //		  }
 //		  PRINTF("%s\n", Buffer);
-//
+
+		  uint8_t Buff[20];
+			uint16_t sT, sH;
+			float   temperatureC, humidityH;           //variable for temperature[°C] as float
+			uint8_t  error = 0;              //variable for error code. For codes see system.h
+			error |= SHT2x_MeasureHM(TEMP, &sT);
+			temperatureC = SHT2x_CalcTemperatureC(sT);
+			error |= SHT2x_MeasureHM(HUMIDITY, &sH);
+			humidityH = SHT2x_CalcRH(sH);
+
+			memcpy(&Buff[0], &temperatureC, 4);
+			memcpy(&Buff[4], &humidityH, 4);
+
+			int i = 0;
+			for(i = 0; i<8; i++){
+			  sprintf(Buffer+i*2, "%02X", Buff[i]);
+			}
+
 //		  dr = 5;
 //		  dr = (d2 % 3) + 3;
 //		  ret = 1;
 //		  ret = setDataRate(dr);
 //		  printAnswer(ret);
-//
-//		  ret = LORAWAN_SENDING_ERROR;
-//		  ret = sendConfirmed(2, Buffer);
-//		  printAnswer(ret);
-//
-//		  if(ret == LORAWAN_NOT_JOINED)
-//			  join = 1;
-//
-//		  if(ret == LORAWAN_ANSWER_OK)
-//		  {
-//			  count_err = 0;
-//		  }
-//		  else
-//			  count_err++;
-//	  }
+
+		  ret = LORAWAN_SENDING_ERROR;
+		  ret = sendConfirmed(1, Buffer);
+		  printAnswer(ret);
+
+		  if(ret == LORAWAN_NOT_JOINED)
+			  join = 1;
+
+		  if(ret == LORAWAN_ANSWER_OK)
+		  {
+			  count_err = 0;
+		  }
+		  else
+			  count_err++;
+	  }
 //	  if(count_err>5)
 //	  {
 //		  resetHardware();
@@ -219,7 +237,7 @@ int main(void)
 //		  del(10000);
 //	  }
 //	  else
-//		  del(60000);
+		  del = 20000;
 
 
 //	if(ret_join == LORAWAN_ANSWER_OK)
@@ -269,40 +287,40 @@ int main(void)
 //	}
 
 	  //----------- cineca ok -----------
-		ON();
-		resetHardware();
-		check();
-		setRetries(0);
-		setDataRate(5);
-
-		if (join != LORAWAN_ANSWER_OK) {
-			join = joinOTAA();
-			printAnswer(join);
-		}
-		if (join == LORAWAN_ANSWER_OK) {
-			char word[20];
-			error |= SHT2x_MeasureHM(TEMP, &sT);
-			temperatureC = SHT2x_CalcTemperatureC(sT);
-			int d1 = temperatureC;
-			float f2 = temperatureC - d1;
-			int d2 = trunc(f2 * 10000);
-			sprintf(word, "%d.%04d", d1, d2);
-			int i = 0;
-			for (i = 0; i < strlen(word); i++) {
-				sprintf(Buffer + i * 2, "%02X", word[i]);
-			}
-			PRINTF("%s\n", Buffer);
-
-			ret = LORAWAN_SENDING_ERROR;
-			ret = sendConfirmed(1, Buffer);
-			printAnswer(ret);
-		}
-		if(ret != LORAWAN_ANSWER_OK)
-			del = 20000;
-		else
-			del = 10000;
-		join = LORAWAN_NOT_JOINED;
-		OFF();
+//		ON();
+//		resetHardware();
+//		check();
+//		setRetries(0);
+//		setDataRate(5);
+//
+//		if (join != LORAWAN_ANSWER_OK) {
+//			join = joinOTAA();
+//			printAnswer(join);
+//		}
+//		if (join == LORAWAN_ANSWER_OK) {
+//			char word[20];
+//			error |= SHT2x_MeasureHM(TEMP, &sT);
+//			temperatureC = SHT2x_CalcTemperatureC(sT);
+//			int d1 = temperatureC;
+//			float f2 = temperatureC - d1;
+//			int d2 = trunc(f2 * 10000);
+//			sprintf(word, "%d.%04d", d1, d2);
+//			int i = 0;
+//			for (i = 0; i < strlen(word); i++) {
+//				sprintf(Buffer + i * 2, "%02X", word[i]);
+//			}
+//			PRINTF("%s\n", Buffer);
+//
+//			ret = LORAWAN_SENDING_ERROR;
+//			ret = sendConfirmed(1, Buffer);
+//			printAnswer(ret);
+//		}
+//		if(ret != LORAWAN_ANSWER_OK)
+//			del = 20000;
+//		else
+//			del = 10000;
+//		join = LORAWAN_NOT_JOINED;
+//		OFF();
 	  //----------- end cineca ok -----------
 
   /* USER CODE END WHILE */
